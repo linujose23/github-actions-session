@@ -39,7 +39,7 @@ jobs:
       # Push the Docker image to Google Cloud Registry
       - name: Publish
         run: |-
-          docker push "asia-south1-docker.pkg.dev/${{ secrets.GKE_PROJECT }}/linu-artifact-repo/python-app:${{ github.short_sha }}"
+          docker push "asia-south1-docker.pkg.dev/${{ secrets.GKE_PROJECT }}/linu-artifact-repo/python-app:${{ github.sha }}"
 
       - name: Authenticate to GKE
         run: gcloud container clusters get-credentials gke-cluster --zone asia-south1-a --project river-blade-408018
