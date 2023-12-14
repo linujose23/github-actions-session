@@ -49,4 +49,4 @@ jobs:
           echo "applying manifest..."
           kubectl apply -f .github/deploy/deployment.yaml -n linu-ns
           echo "Issuing rollout restart..."
-          kubectl rollout restart deploy /deploy/python-app -n linu-ns
+          kubectl rollout restart deploy python-app -n linu-ns
