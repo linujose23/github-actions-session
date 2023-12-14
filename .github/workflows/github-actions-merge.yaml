@@ -68,6 +68,9 @@ jobs:
       - name: Authenticate to GKE
         run: gcloud container clusters get-credentials gke-cluster --zone asia-south1-a --project river-blade-408018
 
+
+      - name: Print shouldDeploy value
+        run: echo "shouldDeploy=${{ env.shouldDeploy }}"
       - name: Apply manifest file and rollout restart
         if: ${{ env.shouldDeploy == 'true' }}
         run: |
