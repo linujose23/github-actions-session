@@ -71,5 +71,5 @@ jobs:
       - name: Apply manifest file and rollout restart
         if: ${{ env.shouldDeploy == 'true' }}
         run: |
-          kubectl apply -f .github/deploy/deployment.yaml -n ${{ env.GKE_NAMESPACE }}
-          kubectl rollout restart deploy /deploy/${{ env.DEPLOYMENT_NAME }} -n ${{ env.GKE_NAMESPACE }}
+          kubectl apply -f .github/deploy/deployment.yaml -n linu-ns
+          kubectl rollout restart deploy /deploy/${{ env.DEPLOYMENT_NAME }} -n linu-ns
