@@ -1,0 +1,75 @@
+name: Deploy to GKE and Push to Artifact Registry
+
+on:
+  pull_request:
+    types:
+      - closed
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check for merged PR
+        id: pr-check
+        run: |
+          pr_number="${{ github.event.pull_request.number }}"
+          pr_response=$(curl -sSL -H "Authorization: Bearer ${{ secrets.TOKEN_GITHUB }}" "https://api.github.com/repos/${{ github.repository }}/pulls/$pr_number")
+          pr_merged=$(echo "$pr_response" | jq -r .merged)
+          pr_tag=$GITHUB_REF_NAME
+
+          echo "pr_merged=${pr_merged}"
+          echo "pr_tag=${pr_tag}"
+
+          if [[ "$pr_merged" == "true" && "$pr_tag" =~ ^release- ]]; then
+            echo "PR merged with a release tag"
+            echo "shouldDeploy=true" >> $GITHUB_ENV
+          else
+            echo "PR not merged with a release tag. Skipping deployment and image push."
+            echo "shouldDeploy=false" >> $GITHUB_ENV
+          fi
+
+      - name: Print shouldDeploy value
+        run: echo "shouldDeploy=${{ env.shouldDeploy }}"
+
+
+
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Configure GCP environment
+        uses: google-github-actions/setup-gcloud@v0.5.0
+        with:
+          service_account_key: ${{ secrets.GKE_SA_KEY }}
+          project_id: ${{ secrets.GKE_PROJECT }}
+
+      - name: Install gke-gcloud-auth-plugin
+        run: |
+          gcloud components install gke-gcloud-auth-plugin
+
+      # Configure Docker to use the gcloud command-line tool as a credential
+      # helper for authentication
+      - run: |-
+          gcloud --quiet auth configure-docker asia-south1-docker.pkg.dev
+
+      # Build the Docker image
+      - name: Build
+        run: |-
+          docker build \
+            --tag "asia-south1-docker.pkg.dev/${{ secrets.GKE_PROJECT }}/linu-poc-repo/python-app:${{ github.sha }}" \
+            --build-arg GITHUB_REF="$GITHUB_REF" \
+            .
+
+      # Push the Docker image to Google Cloud Registry
+      - name: Publish
+        run: |-
+          docker push "asia-south1-docker.pkg.dev/${{ secrets.GKE_PROJECT }}/linu-poc-repo/python-app:${{ github.sha }}"
+
+      - name: Authenticate to GKE
+        run: gcloud container clusters get-credentials linu-cluster --zone asia-south1-a --project vital-framing-385011
+
+      - name: Apply manifest file and rollout restart
+        if: ${{ env.shouldDeploy == 'true' }}
+        run: |
+          kubectl apply -f .github/deploy/deployment.yaml -n ${{ env.GKE_NAMESPACE }}
+          kubectl rollout restart deploy /deploy/${{ env.DEPLOYMENT_NAME }} -n ${{ env.GKE_NAMESPACE }}
