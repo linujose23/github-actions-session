@@ -72,4 +72,4 @@ jobs:
         if: ${{ env.shouldDeploy == 'true' }}
         run: |
           kubectl apply -f .github/deploy/deployment.yaml -n linu-ns
-          kubectl rollout restart deploy /deploy/${{ env.DEPLOYMENT_NAME }} -n linu-ns
+          kubectl rollout restart deploy /deploy/python-app -n linu-ns
