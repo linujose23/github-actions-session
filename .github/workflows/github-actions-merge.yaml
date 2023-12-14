@@ -54,6 +54,7 @@ jobs:
       - name: Update Kubernetes Deployment
         run: |
           echo "Updating Kubernetes Deployment..."
+
           sed -i "s#asia-south1-docker.pkg.dev/${{ secrets.GKE_PROJECT }}/linu-artifact-repo/python-app:.*#asia-south1-docker.pkg.dev/${{ secrets.GKE_PROJECT }}/linu-artifact-repo/python-app:${{ env.SHA_SHORT }}#" .github/deploy/deployment.yaml
           kubectl apply -f .github/deploy/deployment.yaml -n linu-ns
           echo "Issuing rollout restart..."
@@ -66,3 +67,4 @@ jobs:
           git add .github/deploy/deployment.yaml
           git commit -m "Update Docker image tag in deployment.yaml [skip ci]"
           git push origin ${{ github.ref }}
++++++++++++++++++
