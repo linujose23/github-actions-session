@@ -66,7 +66,7 @@ jobs:
           docker push "asia-south1-docker.pkg.dev/${{ secrets.GKE_PROJECT }}/linu-artifact-repo/python-app:${{ github.sha }}"
 
       - name: Authenticate to GKE
-        run: gcloud container clusters get-credentials linu-cluster --zone asia-south1-a --project vital-framing-385011
+        run: gcloud container clusters get-credentials gke-cluster --zone asia-south1-a --project river-blade-408018
 
       - name: Apply manifest file and rollout restart
         if: ${{ env.shouldDeploy == 'true' }}
