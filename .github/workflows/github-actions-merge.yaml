@@ -71,5 +71,7 @@ jobs:
       - name: Apply manifest file and rollout restart
         if: ${{ env.shouldDeploy == 'true' }}
         run: |
+          echo "applying manifest..."
           kubectl apply -f .github/deploy/deployment.yaml -n linu-ns
+          echo "Issuing rollout restart..."
           kubectl rollout restart deploy /deploy/python-app -n linu-ns
