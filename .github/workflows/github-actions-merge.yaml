@@ -29,28 +29,24 @@ jobs:
           gcloud --quiet auth configure-docker asia-south1-docker.pkg.dev
 
       - name: Set outputs
-        id: vars
-        run: echo "sha_short=$(git rev-parse --short HEAD)" >> $GITHUB_OUTPUT
-      - name: Check outputs
-        run: echo ${{ steps.vars.outputs.sha_short }}
-      - name: Check outputs git sha
-        run: echo ${{ github.sha }}
+        run: echo "SHA_SHORT=$(git rev-parse --short HEAD)" >> $GITHUB_ENV
+
       # Build the Docker image
       - name: Build
         run: |-
           docker build \
-            --tag "asia-south1-docker.pkg.dev/${{ secrets.GKE_PROJECT }}/linu-artifact-repo/python-app:${{ steps.vars.outputs.sha_short }}" \
+            --tag "asia-south1-docker.pkg.dev/${{ secrets.GKE_PROJECT }}/linu-artifact-repo/python-app:${{ env.SHA_SHORT }}" \
             --build-arg GITHUB_REF="$GITHUB_REF" \
             .
 
       # Push the Docker image to Google Cloud Registry
       - name: Publish
         run: |-
-          docker push "asia-south1-docker.pkg.dev/${{ secrets.GKE_PROJECT }}/linu-artifact-repo/python-app:${{ steps.vars.outputs.sha_short }}"
+          docker push "asia-south1-docker.pkg.dev/${{ secrets.GKE_PROJECT }}/linu-artifact-repo/python-app:${{ env.SHA_SHORT }}"
 
       - name: Set latest tag as output
         id: set-latest-tag
-        run: echo "::set-output name=latest_tag::${{ steps.vars.outputs.sha_short }}"
+        run: echo "::set-output name=latest_tag::${{ env.SHA_SHORT }}"
 
       - name: Authenticate to GKE
         run: gcloud container clusters get-credentials gke-cluster --zone asia-south1-a --project river-blade-408018
@@ -58,7 +54,7 @@ jobs:
       - name: Update Kubernetes Deployment
         run: |
           echo "Updating Kubernetes Deployment..."
-          sed -i "s#asia-south1-docker.pkg.dev/${{ secrets.GKE_PROJECT }}/linu-artifact-repo/python-app:.*#asia-south1-docker.pkg.dev/${{ secrets.GKE_PROJECT }}/linu-artifact-repo/python-app:${{ steps.vars.outputs.sha_short }}#" .github/deploy/deployment.yaml
+          sed -i "s#asia-south1-docker.pkg.dev/${{ secrets.GKE_PROJECT }}/linu-artifact-repo/python-app:.*#asia-south1-docker.pkg.dev/${{ secrets.GKE_PROJECT }}/linu-artifact-repo/python-app:${{ env.SHA_SHORT }}#" .github/deploy/deployment.yaml
           kubectl apply -f .github/deploy/deployment.yaml -n linu-ns
           echo "Issuing rollout restart..."
           kubectl rollout restart deploy python-app -n linu-ns
