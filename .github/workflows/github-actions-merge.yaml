@@ -62,8 +62,6 @@ jobs:
 
       - name: Commit and Push Updated Deployment File
         run: |
-          git config --global user.email "linujose23@gmail.com"
-          git config --global user.name "linujose23"
           git add .github/deploy/deployment.yaml
           git commit -m "Update Docker image tag in deployment.yaml [skip ci]"
           git push origin ${{ github.ref }} --quiet
