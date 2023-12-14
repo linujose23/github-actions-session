@@ -42,7 +42,6 @@ jobs:
       - name: Print Docker image tag
         run: echo "Docker image tag: asia-south1-docker.pkg.dev/${{ secrets.GKE_PROJECT }}/linu-artifact-repo/python-app:${{ github.sha }}"
 
-
       # Push the Docker image to Google Cloud Registry
       - name: Publish
         run: |-
