@@ -38,9 +38,10 @@ jobs:
       - name: Build
         run: |-
           docker build \
-            --tag "asia-south1-docker.pkg.dev/${{ secrets.GKE_PROJECT }}/linu-artifact-repo/python-app:${{ env.sha_short }}" \
+            --tag "asia-south1-docker.pkg.dev/${{ secrets.GKE_PROJECT }}/linu-artifact-repo/python-app:${{ github.sha }}" \
             --build-arg GITHUB_REF="$GITHUB_REF" \
             .
+
 
       # Push the Docker image to Google Cloud Registry
       - name: Publish
