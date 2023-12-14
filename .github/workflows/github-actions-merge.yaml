@@ -43,7 +43,6 @@ jobs:
             --build-arg GITHUB_REF="$GITHUB_REF" \
             .
 
-
       # Push the Docker image to Google Cloud Registry
       - name: Publish
         run: |-
@@ -56,9 +55,18 @@ jobs:
       - name: Authenticate to GKE
         run: gcloud container clusters get-credentials gke-cluster --zone asia-south1-a --project river-blade-408018
 
-      - name: Apply manifest file and rollout restart
+      - name: Update Kubernetes Deployment
         run: |
-          echo "applying manifest..."
+          echo "Updating Kubernetes Deployment..."
+          sed -i "s#asia-south1-docker.pkg.dev/${{ secrets.GKE_PROJECT }}/linu-artifact-repo/python-app:.*#asia-south1-docker.pkg.dev/${{ secrets.GKE_PROJECT }}/linu-artifact-repo/python-app:${{ steps.vars.outputs.sha_short }}#" .github/deploy/deployment.yaml
           kubectl apply -f .github/deploy/deployment.yaml -n linu-ns
           echo "Issuing rollout restart..."
           kubectl rollout restart deploy python-app -n linu-ns
+
+      - name: Commit and Push Updated Deployment File
+        run: |
+          git config --global user.email "linujose23@gmail.com"
+          git config --global user.name "linujose23"
+          git add .github/deploy/deployment.yaml
+          git commit -m "Update Docker image tag in deployment.yaml [skip ci]"
+          git push origin ${{ github.ref }}
