@@ -63,7 +63,8 @@ jobs:
       - name: Commit and Push Updated Deployment File
         run: |
           git add .github/deploy/deployment.yaml
-          git commit -m "Update Docker image tag in deployment.yaml [skip ci]"
+          git -c user.email="linujose23@gmail.com" -c user.name="linujose23" \
+              commit -m "Update Docker image tag in deployment.yaml [skip ci]"
           git push origin ${{ github.ref }} --quiet
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
