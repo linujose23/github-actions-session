@@ -1,4 +1,3 @@
-The workflow is not valid. .github/workflows/github-actions-merge.yaml (Line: 74, Col: 1): Unexpected value 'workflows'
 name: Deploy to GKE and Push to Artifact Registry
 
 on:
