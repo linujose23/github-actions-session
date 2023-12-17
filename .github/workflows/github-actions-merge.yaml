@@ -28,8 +28,9 @@ jobs:
       - run: |-
           gcloud --quiet auth configure-docker asia-south1-docker.pkg.dev
 
-      # - name: Set outputs
-      #   run: echo "SHA_SHORT=$(git rev-parse --short HEAD)" >> $GITHUB_ENV
+        #obtain the short SHA-1 hash of the latest commit
+      - name: Set outputs
+        run: echo "SHA_SHORT=$(git rev-parse --short HEAD)" >> $GITHUB_ENV
 
       # Build the Docker image
       - name: Build
