@@ -6,7 +6,7 @@ on:
       - closed
 
 jobs:
-  deploy:
+  build-and-publish:
     runs-on: ubuntu-latest
 
     steps:
@@ -23,34 +23,34 @@ jobs:
         run: |
           gcloud components install gke-gcloud-auth-plugin
 
-      # Configure Docker to use the gcloud command-line tool as a credential
-      # helper for authentication
       - run: |-
           gcloud --quiet auth configure-docker asia-south1-docker.pkg.dev
 
-        #obtain the short SHA-1 hash of the latest commit
       - name: Set outputs
         run: echo "SHA_SHORT=$(git rev-parse --short HEAD)" >> $GITHUB_ENV
 
-      # Build the Docker image
-      - name: Build
-        run: |-
+      - name: Build Docker image
+        run: |
           docker build \
             --tag "asia-south1-docker.pkg.dev/${{ secrets.GKE_PROJECT }}/linu-artifact-repo/python-app:${{ env.SHA_SHORT }}" \
             --build-arg GITHUB_REF="$GITHUB_REF" \
             .
 
-      # Push the Docker image to Google Cloud Registry
-      - name: Publish
-        run: |-
+      - name: Push Docker image to Artifact Registry
+        run: |
           docker push "asia-south1-docker.pkg.dev/${{ secrets.GKE_PROJECT }}/linu-artifact-repo/python-app:${{ env.SHA_SHORT }}"
 
-      - name: Set latest tag as output
-        id: set-latest-tag
-        run: echo "::set-output name=latest_tag::${{ env.SHA_SHORT }}"
+  deploy-to-gke:
+    runs-on: ubuntu-latest
 
+    steps:
       - name: Authenticate to GKE
-        run: gcloud container clusters get-credentials gke-cluster --zone asia-south1-a --project river-blade-408018
+        uses: google-github-actions/auth-gke@v0.4.0
+        with:
+          cluster_name: gke-cluster
+          location: asia-south1-a
+          project_id: river-blade-408018
+          service_account_key: ${{ secrets.GKE_SA_KEY }}
 
       - name: Update Kubernetes Deployment
         run: |
@@ -69,3 +69,12 @@ jobs:
           git push origin ${{ github.ref }} --quiet
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+# Define the workflow that triggers both jobs
+workflows:
+  version: '2'
+  build-and-deploy:
+    jobs:
+      - build-and-publish
+      - deploy-to-gke:
+          needs: build-and-publish
