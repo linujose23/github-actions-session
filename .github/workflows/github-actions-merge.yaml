@@ -6,7 +6,7 @@ on:
       - closed
 
 jobs:
-  build-and-publish:
+  deploy:
     runs-on: ubuntu-latest
 
     steps:
@@ -28,7 +28,7 @@ jobs:
       - run: |-
           gcloud --quiet auth configure-docker asia-south1-docker.pkg.dev
 
-      # Obtain the short SHA-1 hash of the latest commit and echo env var as SHA_SHORT appending it to file github_env
+        #obtain the short SHA-1 hash of the latest commit and echoing env var as SHA_SHORT appending it to file github_env
       - name: Set outputs
         run: echo "SHA_SHORT=$(git rev-parse --short HEAD)" >> $GITHUB_ENV
 
@@ -45,18 +45,12 @@ jobs:
         run: |-
           docker push "asia-south1-docker.pkg.dev/${{ secrets.GKE_PROJECT }}/linu-artifact-repo/python-app:${{ env.SHA_SHORT }}"
 
-  deploy-to-gke:
-    runs-on: ubuntu-latest
-    needs: build-and-publish
+      - name: Set latest tag as output
+        id: set-latest-tag
+        run: echo "::set-output name=latest_tag::${{ env.SHA_SHORT }}"
 
-    steps:
       - name: Authenticate to GKE
-        uses: google-github-actions/auth-gke@v0.4.0
-        with:
-          cluster_name: gke-cluster
-          location: asia-south1-a
-          project_id: river-blade-408018
-          service_account_key: ${{ secrets.GKE_SA_KEY }}
+        run: gcloud container clusters get-credentials gke-cluster --zone asia-south1-a --project river-blade-408018
 
       - name: Update Kubernetes Deployment
         run: |
