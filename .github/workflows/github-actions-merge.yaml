@@ -1,3 +1,4 @@
+The workflow is not valid. .github/workflows/github-actions-merge.yaml (Line: 74, Col: 1): Unexpected value 'workflows'
 name: Deploy to GKE and Push to Artifact Registry
 
 on:
@@ -69,12 +70,3 @@ jobs:
           git push origin ${{ github.ref }} --quiet
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
-# Define the workflow that triggers both jobs
-workflows:
-  version: '2'
-  build-and-deploy:
-    jobs:
-      - build-and-publish
-      - deploy-to-gke:
-          needs: build-and-publish
