@@ -49,7 +49,7 @@ kind: Ingress
 metadata:
   name: python-app-ingress
   annotations:
-      kubernetes.io/ingress.global-static-ip-name: demo-ip-session
+      kubernetes.io/ingress.global-static-ip-name: session-static-ip
 spec:
   rules:
     - host:
