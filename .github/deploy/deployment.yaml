@@ -16,7 +16,7 @@ spec:
    spec:
      containers:
        - name: python-app-hello-world
-         image: asia-south1-docker.pkg.dev/river-blade-408018/linu-artifact-repo/python-app:f8e75cf
+         image: asia-south1-docker.pkg.dev/river-blade-408018/linu-artifact-repo/python-app:c2f4cfc
 
          imagePullPolicy: Always
          ports:
