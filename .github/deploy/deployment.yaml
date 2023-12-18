@@ -47,7 +47,7 @@ spec:
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
-  name: python-app-ingress
+  name: python-app-ing
   annotations:
       kubernetes.io/ingress.global-static-ip-name: session-static-ip
 spec:
