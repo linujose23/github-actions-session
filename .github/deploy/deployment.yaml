@@ -5,7 +5,7 @@ metadata:
  labels:
    app: python-app
 spec:
- replicas: 1
+ replicas: 3  # You can adjust the number of replicas as needed
  selector:
    matchLabels:
      app: python-app
@@ -17,7 +17,6 @@ spec:
      containers:
        - name: python-app-hello-world
          image: asia-south1-docker.pkg.dev/river-blade-408018/linu-artifact-repo/python-app:${{ needs.build.outputs.latest_tag }}
-
          imagePullPolicy: Always
          ports:
            - containerPort: 8080
@@ -28,10 +27,10 @@ spec:
            initialDelaySeconds: 5
            timeoutSeconds: 5
            periodSeconds: 5
-strategy:
-  rollingUpdate:
-    maxSurge: 1
-    maxUnavailable: 1
+ strategy:
+   rollingUpdate:
+     maxSurge: 1
+     maxUnavailable: 1
 ---
 apiVersion: v1
 kind: Service
@@ -42,18 +41,16 @@ metadata:
 spec:
   ports:
     - port: 80
-      targetPort: 8080  #This should match the port your application is running on
+      targetPort: 8080
   selector:
     app: python-app
-
 ---
-
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
   name: python-app-ing
   annotations:
-      kubernetes.io/ingress.global-static-ip-name: session-static-ip
+    kubernetes.io/ingress.global-static-ip-name: session-static-ip
 spec:
   rules:
     - host:
