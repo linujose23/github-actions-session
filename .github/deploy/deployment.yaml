@@ -23,7 +23,7 @@ spec:
          readinessProbe:
            httpGet:
              path: /
-             port: 8080
+             port: 8080   #app port
            initialDelaySeconds: 5
            timeoutSeconds: 5
            periodSeconds: 5
