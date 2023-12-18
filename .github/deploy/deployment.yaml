@@ -24,7 +24,7 @@ spec:
          readinessProbe:
            httpGet:
              path: /
-             port: 8080
+             port: 80
            initialDelaySeconds: 5
            timeoutSeconds: 5
            periodSeconds: 5
@@ -37,7 +37,7 @@ metadata:
     app: python-app
 spec:
   ports:
-    - port: 8080
+    - port: 80
       targetPort: 8080
   selector:
     app: python-app
@@ -61,4 +61,4 @@ spec:
               service:
                 name: python-app-service
                 port:
-                  number: 8080
+                  number: 80
