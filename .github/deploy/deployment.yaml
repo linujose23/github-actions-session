@@ -50,7 +50,7 @@ metadata:
   name: my-ingress
 spec:
   rules:
-    - host: localhost
+    - host:
       http:
         paths:
           - path: /
@@ -59,4 +59,4 @@ spec:
               service:
                 name: python-app-service
                 port:
-                  number: 8080
+                  number: 80
